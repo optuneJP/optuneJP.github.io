@@ -1,4 +1,6 @@
-<div id="d1"></div>
+<div id="d2">&nbsp;</div>
 <script>
-document.getElementById("d1").innerHTML = new Date().toLocaleString();
+setInterval(function() {
+  document.getElementById("d2").innerHTML = new Date().toLocaleString();
+}, 1000);
 </script>
