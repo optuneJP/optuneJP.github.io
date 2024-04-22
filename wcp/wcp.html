@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="stylesheet" href="/css/usr/WebCamPlus.css">
+    <script async src="/js/usr/opencv.js" type="text/javascript"></script>
+    <title>HOZAN WebCamPlus - 1.0.0.1［試験運用中］</title>
+</head>
+<body>
+  <div id="top">
+      <div id="menu-bar">
+          <div>
+              <button id="video-mode" onmouseover="tooltipShow('videoMode')" onmouseout="tooltipHide()">
+                  <img style="height: 12px; margin-right: 2px;" src="/img/page/software/WebCamPlus/play.png" alt="描画">リアルタイム
+              </button>
+          </div>
+
+          <div>
+              <input type="button" class="menu-btn" id="menu-bar-camera" value="カメラ設定">
+              <div class="menu-bar-container" id="menu-bar-camera-container">
+
+                  <div class="menu-bar-container-label" style="margin-top: 4px;">接続カメラ</div>
+                  <select class="menu-bar-container-selector" id="camera-select"></select>
+
+                  <div class="menu-bar-container-separater"></div>
+
+                  <div class="menu-bar-container-label">解像度</div>
+
+                  <select class="menu-bar-container-selector" id="resolution-select"></select>
+
+                  <div class="menu-bar-container-separater"></div>
+
+                  <input type="button" class="menu-bar-container-btn" id="camera-ctrl-show" value="カメラ調整">
+
+              </div>
+          </div>
+
+          <div>
+              <input type="button" class="menu-btn" id="menu-bar-save" value="撮影設定">
+
+              <div class="menu-bar-container" id="menu-bar-save-container" style="padding-bottom: 0;">
+
+                  <div style="margin: 5px 0 0 0; display: flex;">
+                      <div>
+                          <div class="menu-bar-container-label">静止画の保存解像度</div>
+                          <select class="menu-bar-container-selector" style="width: 150px;"
+                              id="picture-resolution"></select>
+                      </div>
+
+                      <div style="margin-left: 20px;">
+                          <div class="menu-bar-container-label">静止画の保存形式</div>
+                          <select class="menu-bar-container-selector" style="width: 80px;" id="picture-format">
+                              <option value="jpg">.jpg</option>
+                              <option value="png">.png</option>
+                          </select>
+                      </div>
+                  </div>
+
+                  <div class="menu-bar-container-separater"></div>
+
+                  <div class="menu-bar-container-label">保存名</div>
+                  <div style="display: flex; align-items: center; margin: 0 20px 0 0;">
+                      <input class="menu-bar-container-input" style="margin-right: 2px; flex: 1; white-space: nowrap"
+                          id="picture-name" value="WebCamPlus_{年}{月}{日}_{カウント}">
+                      <span style="font-size: 14px;">.jpg/.webm</span>
+                  </div>
+
+                  <div
+                      style="margin: 10px 20px 0 20px; height: 40px; border: 1px dashed #808080; display: flex; align-items: center; padding: 5px 0 5px 5px;">
+                      <div class="save-name-rule" id="insert-year">年</div>
+                      <div class="save-name-rule" id="insert-month">月</div>
+                      <div class="save-name-rule" id="insert-day">日</div>
+                      <div class="save-name-rule" id="insert-hour">時</div>
+                      <div class="save-name-rule" id="insert-minute">分</div>
+                      <div class="save-name-rule" id="insert-second">秒</div>
+
+                      <div class="save-name-rule2" id="insert-count">カウント</div>
+                      <input type="number" id="save-name-counter" value="1" min="1">
+                  </div>
+
+                  <div style="margin: 15px 0 15px 0; display: flex; align-items: center;">
+                      <div class="menu-bar-container-label">保存名を画像に印字する</div>
+                      <input type="checkbox" id="file-name-stamp" style="margin: 0 0 0 10px;">
+                      <input type="color" class="menu-bar-container-color"
+                          style="height: 18px; width: 20px; margin-left: 15px;" id="file-name-stamp-color"
+                          value="#ffa500">
+                  </div>
+
+                  <div
+                      style="box-shadow: 0 0 4px 2px rgba(255,128, 0, 0.5) inset; background-color: rgba(255,128, 0, 0.1);">
+
+                      <div style="margin: 20px 0 0 0; display: flex; align-items: center; font-size: 12px;">
+                          <div class="menu-bar-container-label">セルフタイマー</div>
+                          <input type="number" style="margin-left: 20px;" class="menu-bar-container-number"
+                              id="self-timer" value="0" min="0">秒後に撮影開始
+                      </div>
+
+                      <div style="margin: 20px 0 20px 0; display: flex; align-items: center; font-size: 12px;">
+                          <div class="menu-bar-container-label">インターバル撮影</div>
+                          <input type="number" style="margin-left: 20px;" class="menu-bar-container-number"
+                              id="interval-time" value="0" min="0">秒間隔
+                          ×
+                          <input type="number" style="margin-left: 2px;" class="menu-bar-container-number"
+                              id="interval-number" value="1" min="1">回
+                      </div>
+                  </div>
+
+              </div>
+          </div>
+
+          <div>
+              <input type="button" class="menu-btn" id="menu-bar-measurement" value="計測設定">
+              <div class="menu-bar-container" id="menu-bar-measurement-container"
+                  style="box-shadow: 0 0 4px 2px rgba(255,128, 0, 0.5) inset; background-color: rgb(242, 229, 216);">
+
+                  <div class="menu-bar-container-label" style="margin-top: 4px;">校正データ</div>
+                  <div class="menu-bar-container-label" style="margin-left: 10px;">1ピクセル
+                      <input class="menu-bar-container-number" id="calibration-data"
+                          style="width: 70px; background-color: #d0d0d0;" value="0" disabled>mm
+                  </div>
+
+                  <div class="menu-bar-container-label" style="margin-top: 8px;">スケール表示</div>
+
+                  <div style="margin: 0 0 0 20px; display: flex; align-items: center; font-size: 12px;">
+                      <select class="menu-bar-container-selector" id="scale-style" style="margin-left: 0;">
+                          <option value="none">なし</option>
+                          <option value="left-top">左上</option>
+                          <option value="left-bottom">左下</option>
+                          <option value="right-top">右上</option>
+                          <option value="right-bottom">右下</option>
+                      </select>
+
+                      <input type="number" class="menu-bar-container-number" id="scale-length" value="1">mm
+
+                      <input type="color" class="menu-bar-container-color" id="scale-color" value="#ffa500">
+
+                  </div>
+
+                  <input type="button" class="menu-bar-container-btn" style="margin-top: 10px;" id="calibration-start"
+                      value="寸法校正をはじめる">
+
+              </div>
+          </div>
+
+          <div>
+              <input type="button" class="menu-btn" id="menu-bar-help" value="ヘルプ">
+              <div class="menu-bar-container" style="width: 210px;" id="menu-bar-help-container">
+
+                  <input type="button" class="menu-bar-container-btn" style="margin-top: 4px;" id="config-data-export"
+                      value="設定データをダウンロード">
+
+                  <div class="menu-bar-container-label" style="margin-top: 20px;">当社Webサイトを開く</div>
+                  <input type="button" class="menu-bar-container-btn" style="margin-top: 5px;" id="open-web-explain"
+                      value="このソフトウェアについて">
+                  <input type="button" class="menu-bar-container-btn" style="margin-top: 5px;" id="open-web-request"
+                      value="ご意見・ご要望">
+              </div>
+          </div>
+
+          <div>
+              <input type="button" class="menu-btn" id="menu-bar-cambrowser" style="width: 160px;"
+                  value="旧 Cam Browser はこちら">
+
+              <div class="menu-bar-container" style="width: 210px;" id="menu-bar-cambrowser-container">
+                  <div id="cambrowser">
+                      <img style="width: 50px; height: 50px;" src="/img/page/software/WebCamPlus/CamBrowser.png" alt="Cam Browser">
+                      <div style="display: flex; align-items: center; font-size: 12px; margin-left: 10px;">
+                          Cam Browser<br>Ver2.0.1.0
+                      </div>
+                  </div>
+                  <div style="display: flex; justify-content: flex-end; margin: 5px 10px 0 0; font-size: 12px;">
+                      <a id="cambrowser-explain" target="_blank">詳しくみる</a>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      <div class="tool-bar">
+
+          <div style="display: flex; align-items: center;">
+              <img class="tool-bar-icon" id="draw-cancel" src="/img/page/software/WebCamPlus/grab.png" alt="描画解除"
+                  onmouseover="tooltipShow('drawCancel')" onmouseout="tooltipHide()">
+
+              <div class="tool-bar-icon" id="drawing">
+                  <img class="tool-bar-icon-in" src="/img/page/software/WebCamPlus/draw.png" alt="描画">
+                  <span class="tool-bar-label">描画</span>
+              </div>
+
+              <div id="ex-accent">
+                  <div class="tool-bar-icon" id="measuring">
+                      <img class="tool-bar-icon-in" src="/img/page/software/WebCamPlus/measure.png" alt="計測">
+                      <span class="tool-bar-label">計測</span>
+                  </div>
+              </div>
+
+              <div class="tool-bar-separater"></div>
+
+              <div id="drawing-tools" style="display: none; align-items: center; width: 300px;">
+                  <img class="tool-bar-icon" id="draw-line" src="/img/page/software/WebCamPlus/drawline.png" alt="直線"
+                      onmouseover="tooltipShow('drawLineTool')" onmouseout="tooltipHide()">
+                  <img class="tool-bar-icon" id="draw-arrow" src="/img/page/software/WebCamPlus/drawarrow.png" alt="矢印"
+                      onmouseover="tooltipShow('drawArrowTool')" onmouseout="tooltipHide()">
+                  <img class="tool-bar-icon" id="draw-rect" src="/img/page/software/WebCamPlus/drawrect.png" alt="長方形"
+                      onmouseover="tooltipShow('drawRectTool')" onmouseout="tooltipHide()">
+                  <img class="tool-bar-icon" id="draw-polygon" src="/img/page/software/WebCamPlus/polygon.png" alt="多角形"
+                      onmouseover="tooltipShow('drawPolygonTool')" onmouseout="tooltipHide()">
+                  <img class="tool-bar-icon" id="draw-circle" src="/img/page/software/WebCamPlus/drawcircle.png" alt="円"
+                      onmouseover="tooltipShow('drawCircleTool')" onmouseout="tooltipHide()">
+                  <img class="tool-bar-icon" id="draw-text" src="/img/page/software/WebCamPlus/text.png" alt="テキスト"
+                      onmouseover="tooltipShow('drawTextTool')" onmouseout="tooltipHide()">
+                  <div class="tool-bar-separater2"></div>
+              </div>
+
+              <div id="measuring-tools" style="display: none; align-items: center; width: 800px;">
+                  <img class="tool-bar-icon" id="measure-two-point" src="/img/page/software/WebCamPlus/2point.png" alt="２点間距離"
+                      onmouseover="tooltipShow('measureTwoPointTool')" onmouseout="tooltipHide()">
+                  <img class="tool-bar-icon" id="measure-multi-point" src="/img/page/software/WebCamPlus/multipoint.png" alt="複数点間距離"
+                      onmouseover="tooltipShow('measureMultiPointTool')" onmouseout="tooltipHide()">
+                  <div class="tool-bar-separater2"></div>
+
+                  <img class="tool-bar-icon" id="measure-parallel" src="/img/page/software/WebCamPlus/parallel.png" alt="平行線間距離"
+                      onmouseover="tooltipShow('measureParallelTool')" onmouseout="tooltipHide()">
+                  <div class="tool-bar-separater2"></div>
+
+                  <img class="tool-bar-icon" id="measure-rect-length" src="/img/page/software/WebCamPlus/rect_length.png" alt="短形周長"
+                      onmouseover="tooltipShow('measureRectLengthTool')" onmouseout="tooltipHide()">
+                  <img class="tool-bar-icon" id="measure-rect-area" src="/img/page/software/WebCamPlus/rect_area.png" alt="短形面積"
+                      onmouseover="tooltipShow('measureRectAreaTool')" onmouseout="tooltipHide()">
+                  <div class="tool-bar-separater2"></div>
+
+                  <img class="tool-bar-icon" id="measure-polygon-length" src="/img/page/software/WebCamPlus/polygon_length.png" alt="多角形周長"
+                      onmouseover="tooltipShow('measurePolygonLengthTool')" onmouseout="tooltipHide()">
+                  <img class="tool-bar-icon" id="measure-polygon-area" src="/img/page/software/WebCamPlus/polygon_area.png" alt="多角形面積"
+                      onmouseover="tooltipShow('measurePolygonAreaTool')" onmouseout="tooltipHide()">
+                  <div class="tool-bar-separater2"></div>
+
+                  <div id="circle-2point" style="display: none; align-items: center;">
+
+                      <img class="tool-bar-icon" id="measure-circle2-radius" src="/img/page/software/WebCamPlus/circle2_radius.png" alt="円半径"
+                          onmouseover="tooltipShow('measureCircleRadiusTool2')" onmouseout="tooltipHide()">
+                      <img class="tool-bar-icon" id="measure-circle2-diameter" src="/img/page/software/WebCamPlus/circle2_diameter.png"
+                          alt="円直径" onmouseover="tooltipShow('measureCircleDiameterTool2')"
+                          onmouseout="tooltipHide()">
+                      <img class="tool-bar-icon" id="measure-circle2-length" src="/img/page/software/WebCamPlus/circle2_length.png" alt="円周長"
+                          onmouseover="tooltipShow('measureCircleLengthTool2')" onmouseout="tooltipHide()">
+                      <img class="tool-bar-icon" id="measure-circle2-area" src="/img/page/software/WebCamPlus/circle2_area.png" alt="円面積"
+                          onmouseover="tooltipShow('measureCircleAreaTool2')" onmouseout="tooltipHide()">
+                      <img class="tool-bar-icon" id="measure-circle2-center" src="/img/page/software/WebCamPlus/circle_center.png" alt="円心２点間距離"
+                          onmouseover="tooltipShow('measureCircleCenterTool2')" onmouseout="tooltipHide()">
+
+                      <div class="circle-mode-change" id="circle-mode-3point"><span style="color: #888;">●</span>●
+                      </div>
+                  </div>
+
+                  <div id="circle-3point" style="display: flex; align-items: center;">
+                      <img class="tool-bar-icon" id="measure-circle3-radius" src="/img/page/software/WebCamPlus/circle3_radius.png" alt="円半径"
+                          onmouseover="tooltipShow('measureCircleRadiusTool3')" onmouseout="tooltipHide()">
+                      <img class="tool-bar-icon" id="measure-circle3-diameter" src="/img/page/software/WebCamPlus/circle3_diameter.png"
+                          alt="円直径" onmouseover="tooltipShow('measureCircleDiameterTool3')"
+                          onmouseout="tooltipHide()">
+                      <img class="tool-bar-icon" id="measure-circle3-length" src="/img/page/software/WebCamPlus/circle3_length.png" alt="円周長"
+                          onmouseover="tooltipShow('measureCircleLengthTool3')" onmouseout="tooltipHide()">
+                      <img class="tool-bar-icon" id="measure-circle3-area" src="/img/page/software/WebCamPlus/circle3_area.png" alt="円面積"
+                          onmouseover="tooltipShow('measureCircleAreaTool3')" onmouseout="tooltipHide()">
+                      <img class="tool-bar-icon" id="measure-circle3-center" src="/img/page/software/WebCamPlus/circle_center.png" alt="円心２点間距離"
+                          onmouseover="tooltipShow('measureCircleCenterTool3')" onmouseout="tooltipHide()">
+
+                      <div class="circle-mode-change" id="circle-mode-2point">●<span style="color: #888;">●</span>
+                      </div>
+                  </div>
+
+                  <div class="tool-bar-separater2"></div>
+
+                  <img class="tool-bar-icon" id="measure-arc-radius" src="/img/page/software/WebCamPlus/arc_radius.png" alt="円弧半径"
+                      onmouseover="tooltipShow('measureArcRadiusTool')" onmouseout="tooltipHide()">
+                  <img class="tool-bar-icon" id="measure-arc-length" src="/img/page/software/WebCamPlus/arc_length.png" alt="円弧長さ"
+                      onmouseover="tooltipShow('measureArcLengthTool')" onmouseout="tooltipHide()">
+
+                  <div class="tool-bar-separater2"></div>
+
+                  <img class="tool-bar-icon" id="measure-point-angle" src="/img/page/software/WebCamPlus/point_angle.png" alt="３点角度"
+                      onmouseover="tooltipShow('measurePointAngleTool')" onmouseout="tooltipHide()">
+
+                  <img class="tool-bar-icon" id="measure-line-angle" src="/img/page/software/WebCamPlus/line_angle.png" alt="線角度"
+                      onmouseover="tooltipShow('measureLineAngleTool')" onmouseout="tooltipHide()">
+
+                  <div class="tool-bar-separater2"></div>
+              </div>
+          </div>
+
+          <div id="tool-config">
+
+              <div id="drawing-styles" style="display: flex; align-items: center;">
+
+                  <span class="tool-bar-label" id="line-style-label" style="margin-right: 10px;">線のスタイル</span>
+                  <div class="line-style" id="line-style" style="margin-right: 10px;">
+
+                      <div class="line-style-parts" id="select-style-start">
+                          <img class="style-start" src="/img/page/software/WebCamPlus/start_none.png" alt="none">
+                      </div>
+                      <div id="style-start-selector">
+                          <img class="style-start" id="start-line-style-none" src="/img/page/software/WebCamPlus/start_none.png" alt="none">
+                          <img class="style-start" id="start-line-style-arrow" src="/img/page/software/WebCamPlus/start_arrow.png" alt="arrow">
+                          <img class="style-start" id="start-line-style-dot" src="/img/page/software/WebCamPlus/start_dot.png" alt="dot">
+                          <img class="style-start" id="start-line-style-line" src="/img/page/software/WebCamPlus/start_line.png" alt="line">
+                      </div>
+
+                      <div class="line-style-parts" id="select-style-line">
+                          <img class="style-line" src="/img/page/software/WebCamPlus/line_solid.png" alt="solid">
+                      </div>
+                      <div id="style-line-selector">
+                          <img class="style-line" id="line-style-solid" src="/img/page/software/WebCamPlus/line_solid.png" alt="solid">
+                          <img class="style-line" id="line-style-dash" src="/img/page/software/WebCamPlus/line_dash.png" alt="dash">
+                      </div>
+
+                      <div class="line-style-parts" id="select-style-end">
+                          <img class="style-start" src="/img/page/software/WebCamPlus/end_arrow.png" alt="none">
+                      </div>
+                      <div id="style-end-selector">
+                          <img class="style-start" id="end-line-style-none" src="/img/page/software/WebCamPlus/end_none.png" alt="none">
+                          <img class="style-start" id="end-line-style-arrow" src="/img/page/software/WebCamPlus/end_arrow.png" alt="arrow">
+                          <img class="style-start" id="end-line-style-dot" src="/img/page/software/WebCamPlus/end_dot.png" alt="dot">
+                          <img class="style-start" id="end-line-style-line" src="/img/page/software/WebCamPlus/end_line.png" alt="line">
+                      </div>
+                  </div>
+
+              </div>
+
+              <div id="drawing-width" style="display: flex; align-items: center; margin-right: 10px;">
+                  <input type="number" id="draw-line-width" value="5" min="1" max="20">
+                  <span class="tool-bar-label" style="margin-left: 2px;">px</span>
+              </div>
+
+              <div id="drawing-color" style="display: flex; align-items: center; position: relative;">
+                  <div id="draw-color">
+                      <div id="select-draw-color"></div>
+                  </div>
+
+                  <div id="draw-color-selector">
+                      <div class="color-selector-container">
+                          <div class="color-selector-content" id="draw-color-red" style="background-color: #f00;">
+                          </div>
+                      </div>
+                      <div class="color-selector-container">
+                          <div class="color-selector-content" id="draw-color-yellow" style="background-color: #ff0;">
+                          </div>
+                      </div>
+                      <div class="color-selector-container">
+                          <div class="color-selector-content" id="draw-color-green" style="background-color: #0f0;">
+                          </div>
+                      </div>
+                      <div class="color-selector-container">
+                          <div class="color-selector-content" id="draw-color-lightblue"
+                              style="background-color: #0ff;"></div>
+                      </div>
+                      <div class="color-selector-container">
+                          <div class="color-selector-content" id="draw-color-blue" style="background-color: #00f;">
+                          </div>
+                      </div>
+                      <div class="color-selector-container">
+                          <div class="color-selector-content" id="draw-color-pink" style="background-color: #f0f;">
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+              <div id="drawing-font-size" style="display: flex; align-items: center; position: relative;">
+                  <span class="tool-bar-label" style="margin-left: 30px; width: 65px;">文字サイズ</span>
+                  <input type="number" id="font-size" value="40" min="1" max="99">
+                  <span class="tool-bar-label" style="margin-left: 2px;">px</span>
+              </div>
+
+              <div id="drawing-fill-color" style="display: flex; align-items: center; position: relative;">
+                  <span class="tool-bar-label" style="margin-left: 30px; width: 60px;">塗りつぶし</span>
+
+                  <div id="fill-color">
+                      <div id="select-fill-color">なし</div>
+                  </div>
+
+                  <div id="fill-color-selector">
+                      <div class="color-selector-container">
+                          <div class="color-selector-content" id="fill-color-none" style="background-color: none;">なし
+                          </div>
+                      </div>
+
+                      <div class="color-selector-container">
+                          <div class="color-selector-content" id="fill-color-red" style="background-color: #f00;">
+                          </div>
+                      </div>
+                      <div class="color-selector-container">
+                          <div class="color-selector-content" id="fill-color-yellow" style="background-color: #ff0;">
+                          </div>
+                      </div>
+                      <div class="color-selector-container">
+                          <div class="color-selector-content" id="fill-color-green" style="background-color: #0f0;">
+                          </div>
+                      </div>
+                      <div class="color-selector-container">
+                          <div class="color-selector-content" id="fill-color-lightblue"
+                              style="background-color: #0ff;"></div>
+                      </div>
+                      <div class="color-selector-container">
+                          <div class="color-selector-content" id="fill-color-blue" style="background-color: #00f;">
+                          </div>
+                      </div>
+                      <div class="color-selector-container">
+                          <div class="color-selector-content" id="fill-color-pink" style="background-color: #f0f;">
+                          </div>
+                      </div>
+
+                  </div>
+              </div>
+          </div>
+
+          <div style="display: none; align-items: center; justify-content: right;" id="draw-function">
+              <img class="tool-bar-icon" id="draw-move" src="/img/page/software/WebCamPlus/pointer.png" alt="描画移動"
+                  onmouseover="tooltipShow('drawMove')" onmouseout="tooltipHide()">
+              <img class="tool-bar-icon" id="draw-delete" src="/img/page/software/WebCamPlus/delete.png" alt="選択削除"
+                  onmouseover="tooltipShow('drawDelete')" onmouseout="tooltipHide()">
+              <img class="tool-bar-icon" id="draw-clear" src="/img/page/software/WebCamPlus/clear.png" alt="全削除"
+                  onmouseover="tooltipShow('drawClear')" onmouseout="tooltipHide()">
+              <img class="tool-bar-icon" id="draw-back" src="/img/page/software/WebCamPlus/back.png" alt="戻す"
+                  onmouseover="tooltipShow('drawBack')" onmouseout="tooltipHide()">
+              <img class="tool-bar-icon" id="draw-redo" src="/img/page/software/WebCamPlus/redo.png" alt="取消"
+                  onmouseover="tooltipShow('drawRedo')" onmouseout="tooltipHide()">
+              <img class="tool-bar-icon" id="draw-save" src="/img/page/software/WebCamPlus/save.png" alt="保存"
+                  onmouseover="tooltipShow('drawSave')" onmouseout="tooltipHide()">
+          </div>
+      </div>
+  </div>
+  <div id="work-space">
+
+      <div id="video-area">
+
+          <div style="position: relative;">
+              <video id="video-element" autoplay></video>
+              <canvas id="video-canvas" style="position: absolute; top: 0; left: 0; display: none;"> </canvas>
+              <canvas id="comp-canvas" style="position: absolute; top: 0; left: 0; display: none; opacity: 0.5;">
+              </canvas>
+              <canvas id="shadow-mask-canvas"
+                  style="position: absolute; top: 0; left: 0; display: none; opacity: 0.5;"> </canvas>
+              <canvas id="draw-canvas" style="position: absolute; top: 0; left: 0;"> </canvas>
+              <canvas id="line-canvas" style="position: absolute; top: 0; left: 0;"> </canvas>
+
+              <canvas id="pre-draw-canvas" style="position: absolute; top: 0; left: 0; opacity: 0.8;"> </canvas>
+              <canvas id="event-canvas" style="position: absolute; top: 0; left: 0; cursor: grab;"></canvas>
+          </div>
+
+          <canvas id="process-canvas" style="display: none"></canvas>
+          <canvas id="draw-memory-canvas" style="display: none"></canvas>
+
+          <div id="scale"
+              style="position: absolute; display: none; justify-content: center; color: rgb(255, 165, 0); font-weight: bold;">
+          </div>
+
+          <div id="popup-message" style="display: none;">
+              モノクロ表示
+          </div>
+
+      </div>
+
+      <div id="ctrl-area">
+
+          <div id="navigator-container"
+              style="width: 290px; height: 290px; background-color: #777; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 2px 1px rgba(0, 0, 0, 0.2) inset; overflow: hidden;">
+
+              <div style="position: relative;">
+                  <canvas id="navigator" style="width: 270px; height: 202.5px;"> </canvas>
+                  <div id="navigator-area" style="border: 1px solid rgb(0, 255, 170); position: absolute;"></div>
+              </div>
+          </div>
+
+          <div class="ctrl-menu" style="display: none;" id="ctrl-menu-line">
+
+              <div class="ctrl-menu-component" style="border: none;">
+                  <div style="display: flex; position: relative;">
+                      <div class="ctrl-menu-label">ライン表示</div>
+                      <div class="toggle-base" style="position: absolute; right: 10px;" id="line-show">
+                          <div class="toggle-switch" id="line-show-switch"></div>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="ctrl-menu-component" id="line-config"
+                  style="border: none; border-top: 2px solid #a0a0a0; display: none;">
+
+                  <div
+                      style="display: flex; margin: 0 20px 10px 10px; padding: 2px 5px 2px 5px; align-items: center; justify-content: center; background-color: #bbb; border-radius: 5px;">
+                      <img class="tool-bar-icon" style="width: 25px; height: 25px; margin-left: 0;"
+                          id="line-horizontal" src="/img/page/software/WebCamPlus/line_hor.png" alt="水平ライン"
+                          onmouseover="tooltipShow('lineHorTool')" onmouseout="tooltipHide()">
+                      <img class="tool-bar-icon" style="width: 25px; height: 25px;" id="line-vertical"
+                          src="/img/page/software/WebCamPlus/line_ver.png" alt="垂直ライン" onmouseover="tooltipShow('lineVerTool')"
+                          onmouseout="tooltipHide()">
+                      <img class="tool-bar-icon" style="width: 25px; height: 25px;" id="line-circle"
+                          src="/img/page/software/WebCamPlus/drawcircle.png" alt="円ライン" onmouseover="tooltipShow('lineCircleTool')"
+                          onmouseout="tooltipHide()">
+                      <img class="tool-bar-icon" style="width: 25px; height: 25px;" id="line-move"
+                          src="/img/page/software/WebCamPlus/pointer.png" alt="ライン移動" onmouseover="tooltipShow('lineMove')"
+                          onmouseout="tooltipHide()">
+                      <img class="tool-bar-icon" style="width: 25px; height: 25px;" id="line-delete"
+                          src="/img/page/software/WebCamPlus/delete.png" alt="ライン選択削除" onmouseover="tooltipShow('lineDelete')"
+                          onmouseout="tooltipHide()">
+                      <img class="tool-bar-icon" style="width: 25px; height: 25px;" id="line-clear"
+                          src="/img/page/software/WebCamPlus/clear.png" alt="ライン全削除" onmouseover="tooltipShow('lineClear')"
+                          onmouseout="tooltipHide()">
+                  </div>
+
+                  <div class="ctrl-menu-lv2">
+                      <div style="display: flex; align-items: center;">
+                          <div class="ctrl-menu-label">線幅</div>
+
+                          <div id="line-width" style="display: flex; align-items: center; margin-left: 10px;">
+                              <input type="number" id="line-guide-width" value="5" min="1" max="20">
+                              <span class="tool-bar-label" style="margin-left: 2px;">px</span>
+                          </div>
+
+                          <div class="ctrl-menu-label" style="margin: 0 5px 0 40px;">色</div>
+
+                          <div id="line-guide-color" style="display: flex; align-items: center; position: relative;">
+                              <div id="line-color">
+                                  <div id="select-line-color"></div>
+                              </div>
+
+                              <div id="line-color-selector">
+                                  <div class="color-selector-container">
+                                      <div class="color-selector-content" id="line-color-red"
+                                          style="background-color: #f00;">
+                                      </div>
+                                  </div>
+                                  <div class="color-selector-container">
+                                      <div class="color-selector-content" id="line-color-yellow"
+                                          style="background-color: #ff0;">
+                                      </div>
+                                  </div>
+                                  <div class="color-selector-container">
+                                      <div class="color-selector-content" id="line-color-green"
+                                          style="background-color: #0f0;">
+                                      </div>
+                                  </div>
+                                  <div class="color-selector-container">
+                                      <div class="color-selector-content" id="line-color-lightblue"
+                                          style="background-color: #0ff;"></div>
+                                  </div>
+                                  <div class="color-selector-container">
+                                      <div class="color-selector-content" id="line-color-blue"
+                                          style="background-color: #00f;">
+                                      </div>
+                                  </div>
+                                  <div class="color-selector-container">
+                                      <div class="color-selector-content" id="line-color-pink"
+                                          style="background-color: #f0f;">
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+
+                  </div>
+              </div>
+          </div>
+
+          <div class="ctrl-menu" style="display: none;" id="ctrl-menu-line-config">
+
+              <div class="ctrl-menu-component" style="border: none;">
+                  <div style="display: flex; position: relative;">
+                      <div class="ctrl-menu-label">シャドウマスク</div>
+                      <div class="toggle-base" style="position: absolute; right: 10px;" id="shadow-mask">
+                          <div class="toggle-switch" id="shadow-mask-switch"></div>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="ctrl-menu-component" id="shadow-mask-show"
+                  style="border: none; border-top: 2px solid #a0a0a0; display: none;">
+                  <div style="display: flex; margin-bottom: 10px;">
+                      <input type="button" class="ctrl-menu-btn" style="margin-right: 5px;" id="shadow-mask-add"
+                          value="追加">
+                      <input type="button" class="ctrl-menu-btn" id="shadow-mask-reset" value="リセット">
+                  </div>
+
+                  <div class="ctrl-menu-lv2">
+                      <div class="ctrl-menu-label">透過率
+                          <input type="range" class="ctrl-menu-range" id="shadow-rate" min="0" max="1" value="0.5"
+                              step="0.1">
+                      </div>
+                  </div>
+              </div>
+
+
+          </div>
+
+          <div class="ctrl-menu"
+              style="display: none; box-shadow: 0 0 4px 2px rgba(255,128, 0, 0.5) inset; background-color: rgb(242, 229, 216);"
+              id="ctrl-menu-comp">
+
+              <div class="ctrl-menu-component" style="padding: 14px;">
+                  <div id="image-drop">比較画像をドロップ</div>
+              </div>
+
+              <div class="ctrl-menu-component" style="border: none;">
+                  <div style="display: flex; position: relative;">
+                      <div class="ctrl-menu-label">比較画像を重ねて表示</div>
+                      <div class="toggle-base" style="position: absolute; right: 10px;" id="composite">
+                          <div class="toggle-switch" id="composite-switch"></div>
+                      </div>
+                  </div>
+
+                  <div class="ctrl-menu-lv2">
+                      <div class="ctrl-menu-label">透過率
+                          <input type="range" class="ctrl-menu-range" id="comp-rate" min="0" max="1" value="0.5"
+                              step="0.1">
+                      </div>
+                  </div>
+              </div>
+
+          </div>
+      </div>
+  </div>
+  <div id="bottom">
+
+      <div style="display: flex; align-items: center; flex: 1; justify-content: left;">
+
+          <img class="command-bar-icon" id="rot-l" src="/img/page/software/WebCamPlus/rot_l.png" alt="左回転"
+              onmouseover="tooltipShow('leftRotation')" onmouseout="tooltipHide()">
+          <img class="command-bar-icon" id="rot-r" src="/img/page/software/WebCamPlus/rot_r.png" alt="右回転"
+              onmouseover="tooltipShow('rightRotation')" onmouseout="tooltipHide()">
+          <img class="command-bar-icon" id="flip-v" src="/img/page/software/WebCamPlus/flip_v.png" alt="上下反転"
+              onmouseover="tooltipShow('vertReverse')" onmouseout="tooltipHide()">
+          <img class="command-bar-icon" id="flip-h" src="/img/page/software/WebCamPlus/flip_h.png" alt="左右反転"
+              onmouseover="tooltipShow('horReverse')" onmouseout="tooltipHide()">
+
+
+          <div class="command-bar-separater"></div>
+
+          <img class="command-bar-icon" id="zoom-out" src="/img/page/software/WebCamPlus/zoom-out.png" alt="縮小"
+              onmouseover="tooltipShow('zoomOut')" onmouseout="tooltipHide()">
+          <input type="range" id="control-zoom" min="0.1" max="5" value="1" step="0.05">
+          <img class="command-bar-icon" id="zoom-in" src="/img/page/software/WebCamPlus/zoom-in.png" alt="拡大"
+              onmouseover="tooltipShow('zoomIn')" onmouseout="tooltipHide()">
+          <img class="command-bar-icon" id="fitting" src="/img/page/software/WebCamPlus/fit_1.png" alt="全体を表示"
+              onmouseover="tooltipShow('fitting')" onmouseout="tooltipHide()">
+          <img class="command-bar-icon" id="actual-size" src="/img/page/software/WebCamPlus/fit_2.png" alt="等倍表示"
+              onmouseover="tooltipShow('actualSize')" onmouseout="tooltipHide()">
+
+          <img class="command-bar-icon" id="loupe" src="/img/page/software/WebCamPlus/loupe.png" alt="部分拡大" onmouseover="tooltipShow('loupe')"
+              onmouseout="tooltipHide()">
+
+          <div class="command-bar-separater"></div>
+
+          <img class="command-bar-icon" id="picture" src="/img/page/software/WebCamPlus/picture.png" alt="静止画撮影"
+              onmouseover="tooltipShow('picture')" onmouseout="tooltipHide()">
+          <img class="command-bar-icon" id="movie" src="/img/page/software/WebCamPlus/rec.png" alt="動画撮影" onmouseover="tooltipShow('movie')"
+              onmouseout="tooltipHide()">
+
+          <div class="command-bar-separater"></div>
+
+          <img class="command-bar-icon" id="cross-line" src="/img/page/software/WebCamPlus/crossline.png" alt="クロスライン"
+              onmouseover="tooltipShow('crossLine')" onmouseout="tooltipHide()">
+
+          <input type="color" id="cross-line-color" value="#00ffaa">
+
+          <img class="command-bar-icon" id="color-filter" src="/img/page/software/WebCamPlus/mono.png" alt="モノクロ表示"
+              onmouseover="tooltipShow('colorFilter')" onmouseout="tooltipHide()">
+      </div>
+
+
+      <div style="display: flex; align-items: center; justify-content: right; padding: 0 20px 0 0;">
+
+          <div class="command-bar-icon" id="line">
+              <img class="command-bar-icon-in" src="/img/page/software/WebCamPlus/line.png" alt="ライン表示">
+              <span class="command-bar-label">ライン表示<span>
+          </div>
+
+          <div id="ex-accent2">
+              <div class="command-bar-icon" id="comp">
+                  <img class="command-bar-icon-in" src="/img/page/software/WebCamPlus/comp.png" alt="画像と比較">
+                  <span class="command-bar-label">画像と比較<span>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div id="camera-ctrl">
+      <div class="window-bar" id="camera-ctrl-bar">カメラ調整
+          <input type="button" id="camera-ctrl-close" value="×">
+      </div>
+
+      <div class="window-container">
+          <div class="ctrl-menu" style="margin: 0 10px 10px 10px;">
+
+              <div class="window-component">
+                  <div class="window-lv1">
+                      <div class="window-label" style="width: 80px;">明るさ</div>
+                      <input type="range" class="window-range" id="config-camera-brightness" min="-128" max="127"
+                          step="10" value="0">
+                      <input class="window-input" id="config-camera-brightness-value" min="-128" max="127" value="0">
+                  </div>
+              </div>
+
+              <div class="window-component">
+                  <div style="display: flex; position: relative;">
+                      <div class="window-label">自動露出</div>
+                      <div class="toggle-base" style="position: absolute; right: 14px;"
+                          id="config-camera-exposure-mode">
+                          <div class="toggle-switch" id="config-camera-exposure-mode-switch"></div>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="window-component" id="window-component-gain">
+                  <div class="window-lv1">
+                      <div class="window-label" style="width: 80px;">ゲイン</div>
+                      <input type="range" class="window-range" id="config-camera-exposure-compensation" min="0"
+                          max="255" step="10" value="32">
+                      <input class="window-input" id="config-camera-exposure-compensation-value" min="0" max="255"
+                          value="32">
+                  </div>
+              </div>
+
+              <div class="window-component" id="window-component-exposure" style="display: none;">
+                  <div class="window-lv1">
+                      <div class="window-label" style="width: 80px;">露出</div>
+                      <input type="range" class="window-range" id="config-camera-exposure-time" min="-13" max="3"
+                          step="1" value="-8">
+                      <input class="window-input" id="config-camera-exposure-time-value" min="-13" max="3" value="-8">
+                  </div>
+              </div>
+
+              <div class="window-component">
+                  <div class="window-lv1">
+                      <div class="window-label" style="width: 80px;">コントラスト</div>
+                      <input type="range" class="window-range" id="config-camera-contrast" min="0" max="255" step="10"
+                          value="40">
+                      <input class="window-input" id="config-camera-contrast-value" min="0" max="255" value="40">
+                  </div>
+              </div>
+
+              <div class="window-component">
+                  <div class="window-lv1">
+                      <div class="window-label" style="width: 80px;">鮮やかさ</div>
+                      <input type="range" class="window-range" id="config-camera-saturation" min="0" max="255"
+                          step="10" value="64">
+                      <input class="window-input" id="config-camera-saturation-value" min="0" max="255" value="64">
+                  </div>
+              </div>
+
+              <div class="window-component">
+                  <div class="window-lv1">
+                      <div class="window-label" style="width: 80px;">鮮明度</div>
+                      <input type="range" class="window-range" id="config-camera-sharpness" min="0" max="255"
+                          step="10" value="80">
+                      <input class="window-input" id="config-camera-sharpness-value" min="0" max="255" value="80">
+                  </div>
+              </div>
+
+              <div class="window-component">
+                  <div style="display: flex; position: relative;">
+                      <div class="window-label">自動ホワイトバランス</div>
+                      <div class="toggle-base" style="position: absolute; right: 14px;"
+                          id="config-camera-whitebalance-mode">
+                          <div class="toggle-switch" id="config-camera-whitebalance-mode-switch"></div>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="window-component" id="window-component-colortemp" style="display: none;">
+                  <div class="window-lv1">
+                      <div class="window-label" style="width: 80px;">色合い</div>
+                      <input type="range" class="window-range" id="config-camera-colorTemperature" min="0" max="255"
+                          step="10" value="128">
+                      <input class="window-input" id="config-camera-colorTemperature-value" min="0" max="255"
+                          value="128">
+                  </div>
+              </div>
+
+              <div class="window-component" style="height: 28px;">
+                  <input type="button" style="position: absolute; right: 23px;" class="ctrl-menu-btn"
+                      id="config-camera-reset" value="リセット">
+              </div>
+          </div>
+      </div>
+  </div>
+  <div id="calibration" style="display: none;">
+      <div class="window-bar" id="calibratin-window-bar">寸法校正
+          <input type="button" id="calibratin-window-close" value="×">
+      </div>
+
+      <div class="window-container" style="padding-bottom: 2px;">
+          <div class="ctrl-menu" style="margin: 0 10px 10px 10px;">
+
+              <div class="window-component" id="calibration-click" style="height: 100px; position: relative;">
+                  <div class="window-lv1">
+                      <div class="window-label">
+                          定規の目盛やスケールの交点を等間隔にクリックしてください。<br>
+                          方眼スケールの交点は自動検出が可能です。
+                      </div>
+                  </div>
+
+                  <input type="button" style="position: absolute; left: 10px; bottom: 10px;" class="ctrl-menu-btn"
+                      id="calibration-trace-reset" value="リセット">
+
+                  <input type="button" style="position: absolute; left: 85px; bottom: 10px;" class="ctrl-menu-btn"
+                      id="calibration-auto-trace" value="自動検出">
+
+                  <input type="button" style="position: absolute; right: 10px; bottom: 10px;" class="ctrl-menu-btn"
+                      id="calibration-trace-end" value="次へ">
+
+              </div>
+
+              <div class="window-component" id="calibration-pitch"
+                  style="height: 100px; display: none; position: relative;">
+                  <div class="window-lv1">
+                      <div class="window-label">クリックした点の間隔を入力してください。</div>
+                  </div>
+
+                  <div class="window-lv1" style="padding: 5px 0 5px 0;">
+                      <div class="window-label">
+                          <input class="window-input" id="calibration-pitch-value" value="1"> mm
+                      </div>
+                  </div>
+
+
+                  <input type="button" style="position: absolute; right: 60px; bottom: 10px;" class="ctrl-menu-btn"
+                      id="calibration-back" value="戻る">
+
+                  <input type="button" style="position: absolute; right: 10px; bottom: 10px;" class="ctrl-menu-btn"
+                      id="calibration-end" value="反映">
+
+
+              </div>
+
+
+
+          </div>
+      </div>
+  </div>
+  <input id="text-edit">
+  <canvas id="loupe-canvas"
+      style="position: absolute; top: 0; left: 0; width: 300px; height: 300px; display: none; pointer-events: none;">
+  </canvas>
+  <img id="full" src="/img/page/software/WebCamPlus/full.png" alt="全画面表示" onmouseover="tooltipShow('full')" onmouseout="tooltipHide()">
+  <div id="tooltip">ここに説明が表示されます</div>
+  <div id="blackout"></div>
+  <div id="dialog-window">
+      <div id="dialog-title"></div>
+      <div id="dialog-message"></div>
+      <div id="dialog-btn"></div>
+  </div>
+  <script src="/js/usr/WebCamPlus.js"></script>
+</body>
+</html>
