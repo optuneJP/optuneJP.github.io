@@ -4976,6 +4976,7 @@ function cameraAcquisition() {
         devices.forEach((device) => {
             if (device.kind === 'videoinput') {
                 if (
+                    device.label === 'USB Camera L-835 (04f2:1601)' ||
                     device.label === 'USB Camera L-836 (04f2:1601)' ||
                     device.label === 'USB Camera L-837 (04f2:1601)' ||
                     device.label === 'USB Camera L-834 (04f2:1601)'
