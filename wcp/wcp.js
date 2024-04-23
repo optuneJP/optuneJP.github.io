@@ -41,7 +41,7 @@ let connectedCamera = [];
 videoMode.addEventListener('click', () => {
     if (isVideoMode != 'realtime') {
         isVideoMode = 'realtime';
-        videoMode.innerHTML = '<img style="height: 12px; margin-right: 2px;" src="/img/page/software/WebCamPlus/play.png" alt="描画">リアルタイム';
+        videoMode.innerHTML = '<img style="height: 12px; margin-right: 2px;" src="img//play.png" alt="描画">リアルタイム';
         videoMode.style.backgroundColor = null;
         cameraConnect(cameraList[parseInt(connectedCamera[0], 10)].deviceId, supportedResolution[parseInt(connectedCamera[1], 10)][0], supportedResolution[parseInt(connectedCamera[1], 10)][1]);
         cameraSelect.innerHTML = `<option value="0">${cameraList[0].name}</option>`;
@@ -86,7 +86,7 @@ videoMode.addEventListener('click', () => {
         } catch { }
         video.style.display = 'none';
         videoCanvas.style.display = 'block';
-        videoMode.innerHTML = '<img style="height: 12px; margin-right: 2px;" src="/img/page/software/WebCamPlus/pause.png" alt="描画">一時停止';
+        videoMode.innerHTML = '<img style="height: 12px; margin-right: 2px;" src="img//pause.png" alt="描画">一時停止';
         videoMode.style.backgroundColor = '#a0e0ff';
         cameraSelect.innerHTML = `<option value="0">（画像編集中）</option>`;
         cameraSelect.disabled = true;
@@ -683,19 +683,19 @@ class ToolConfigChanger {
             switch (group) {
                 case 'startLineStyle':
                     drawStyle.startLineStyle = style;
-                    selectStyleStart.innerHTML = `<img class="style-start" src="/img/page/software/WebCamPlus/start_${style}.png" alt="${style}">`;
+                    selectStyleStart.innerHTML = `<img class="style-start" src="img//start_${style}.png" alt="${style}">`;
                     styleStartSelector.style.display = 'none';
                     isStyleStartSelector = false;
                     break;
                 case 'lineStyle':
                     drawStyle.lineStyle = style;
-                    selectStyleLine.innerHTML = `<img class="style-line" src="/img/page/software/WebCamPlus/line_${style}.png" alt="${style}">`;
+                    selectStyleLine.innerHTML = `<img class="style-line" src="img//line_${style}.png" alt="${style}">`;
                     styleLineSelector.style.display = 'none';
                     isStyleLineSelector = false;
                     break;
                 case 'endLineStyle':
                     drawStyle.endLineStyle = style;
-                    selectStyleEnd.innerHTML = `<img class="style-start" src="/img/page/software/WebCamPlus/end_${style}.png" alt="${style}">`;
+                    selectStyleEnd.innerHTML = `<img class="style-start" src="img//end_${style}.png" alt="${style}">`;
                     styleEndSelector.style.display = 'none';
                     isStyleEndSelector = false;
                     break;
@@ -1639,7 +1639,7 @@ function getImage(event) {
         drawBackActive(false);
         drawRedoActive(false);
         isVideoMode = 'image';
-        videoMode.innerHTML = '<img style="height: 12px; margin-right: 2px; transform: rotate(90deg);" src="/img/page/software/WebCamPlus/play.png" alt="描画">画像編集';
+        videoMode.innerHTML = '<img style="height: 12px; margin-right: 2px; transform: rotate(90deg);" src="img//play.png" alt="描画">画像編集';
         videoMode.style.backgroundColor = '#a0e0ff';
         cameraSelect.innerHTML = `<option value="0">（画像編集中）</option>`;
         cameraSelect.disabled = true;
@@ -4867,10 +4867,10 @@ function imageEditorMode() {
     if (videoResolution.width === 0) {
         clearTimeout(popupMsgTimer);
         popupMsgShow('画像編集のみ使用できます。ここにドロップしてください。');
-        videoMode.innerHTML = '<img style="height: 12px; margin-right: 2px; transform: rotate(90deg);" src="/img/page/software/WebCamPlus/play.png" alt="描画">画像編集';
+        videoMode.innerHTML = '<img style="height: 12px; margin-right: 2px; transform: rotate(90deg);" src="img//play.png" alt="描画">画像編集';
         popupMsg.style.display = 'block';
         videoMode.style.pointerEvents = 'none';
-        const path = '/img/page/software/WebCamPlus/sample.jpg';
+        const path = 'img//sample.jpg';
         const image = new Image();
         image.src = path;
         image.onload = () => {
