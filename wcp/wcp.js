@@ -1,4 +1,4 @@
-const uiWidthLimit = 1650;  //インターフェースの幅の上限
+const uiWidthLimit = 1650;  //インターフェース幅の上限
 
 const urlWebExplain = 'https://www.hozan.co.jp/corp/supportservice/pg/1CamBrowser2/';   //ソフト説明ページのURL
 const urlWebRequest = 'https://www.hozan.co.jp/corp/everyform/form.aspx?questionnaire=CamPlus';   //ソフトの不具合・ご要望フォーム
