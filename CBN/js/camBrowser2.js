@@ -56,7 +56,7 @@ class CamBrowser {
             const vendorId = match[1];
             const productId = match[2];
 
-            if(['04f2'].includes(vendorId) && ['1601'].includes(productId)) { // 利用可能かをベンダーIDとプロダクトIDで指定
+            if(['04f2'].includes(vendorId) && ['a007'].includes(productId)) { // 利用可能かをベンダーIDとプロダクトIDで指定
               let e = document.createElement('option');
               e.setAttribute('value', device.deviceId);
               e.innerText = deviceName;
