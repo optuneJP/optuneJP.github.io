@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>cam Browser</title>
+    <script src="/js/usr/jquery.elevateZoom-3.0.8.min.js" defer></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <link rel="stylesheet" href="/css/usr/camBrowser2.css?v1">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      .setting {
+        border-collapse: separate;
+        border-spacing: 0px 5px;
+        width: 100%;
+        background: inherit;
+      }
+      .setting tr {
+        background: rgb(211, 211, 211);
+      }
+      .setting td {
+        padding: 6px 0;
+        text-align: center;
+        font-size: 0.8rem;
+      }
+      .setting td:first-child {
+        text-align: left;
+        padding-left: 8px;
+      }
+      .setting td > * {
+        vertical-align: middle;
+      }
+      .setting input[type="text"] {
+        text-align: center;
+        width: 25px;
+      }
+      .setting td input[type="range"]:disabled {
+        -webkit-appearance: none;
+        background-color: gray;
+        opacity: 0.5;
+        pointer-events: none;
+      }
+
+      .tab-checkbox {
+    width: calc(100% - 16px);
+    padding: 12px 8px;
+    display: block;
+    color: rgb(88, 88, 88);
+    font-weight: 800;
+    background: whitesmoke;
+  }
+  #tab-checkbox:checked ~ .tabs {
+    transition: 0.4s;
+    opacity: 1;
+  }
+  .tabs {
+    opacity: 0;
+    padding: 0 !important;
+    background: none !important;
+  }
+  .tab-item {
+    float: left;
+    margin-right: 10px;
+    cursor: pointer;
+    color: #565656;
+    font-weight: 800;
+    padding: 8px 12px;
+    text-align: center;
+    background-color: #d9d9d9;
+  }
+  .tabs input[type="radio"] {
+    display: none;
+  }
+  .tab-content {
+    display: none;
+    padding: 12px 8px;
+    clear: both;
+    overflow: hidden;
+    background-color: whitesmoke;
+    min-height: 200px;
+    overflow-y: scroll;
+  }
+  #tab1:checked ~ #tab1-content,
+  #tab2:checked ~ #tab2-content,
+  #tab3:checked ~ #tab3-content {
+    display: block;
+  }
+  .tabs input[type="radio"]:checked + .tab-item {
+    background-color: whitesmoke;
+  }
+  .line-wrapper {
+    background: rgb(211, 211, 211);
+    padding: 8px 12px;
+    font-weight: 800;
+    font-size: 80%;
+    margin: 10px 0;
+    overflow-x: scroll;
+  }
+  .line-wrapper > div {
+    vertical-align: middle;
+  }
+</style>
+  </head>
+  <body>
+    <div style="display:flex;justify-content: space-evenly;">
+      <div id="screen">
+        <video id="video" style="transform: scale(1, 1);"></video>
+        <canvas id="canvas" style="display: none;" oncontextmenu="event.preventDefault();"></canvas>
+        <img id="lensOutput" src="" style="display: none;" alt data-private>
+      </div>
+      <div class="control">
+        <!-- 情報エリア -->
+        <div style="position: relative;height: 120px;background: rgb(61, 61, 61);color: white;">
+          <div id="info" style="padding: 3px;font-size: 0.75rem;overflow-wrap: break-word;">
+            <u>ヘルプウィンドウ</u><br>ここには使い方のヒントが表示されます
+          </div>
+          <span class="material-symbols-outlined" style="position: absolute;right: 2px;top: 2px;" onclick="window.open('/corp/pg/1CamBrowser2/')" onmouseout="IconOut();" onmouseover="IconOver('Help');">
+            help
+          </span>
+        </div>
+        <!-- カメラ接続・切り替え -->
+        <button id="camera-connect" onclick="StartUp();this.style.display='none';">カメラを接続する</button>
+        <select id="camera-select" onchange="cam.UpDateCamera();" style="display: none;">
+          <option value="" selected>カメラを選択してください</option>
+        </select>
+
+        <!-- 撮影と録画 -->
+        <div>
+          <p>
+            保存名：<input type="text" value="" id="filename" style="padding: 3px 5px;" onmouseout="IconOut();" onmouseover="IconOver('FileName');">
+          </p>
+          <div class="space-between">
+            <div>
+              <img src="/img/page/software/cam_browser/icon/Photo_None.png" class="icon" onclick="cam.TakePicture(this);" id="Photo" onmouseout="IconOut();" onmouseover="IconOver('Photo')" alt="">
+              <img src="/img/page/software/cam_browser/icon/Movie_None.png" class="icon" onclick="cam.Record(this);" id="Record" onmouseout="IconOut();" onmouseover="IconOver('Movie')" alt="">
+            </div>
+            <div>
+              <img src="/img/page/software/cam_browser/icon/Stop_None.png" class="icon" onclick="cam.Stop(this);" id="Stop" onmouseout="IconOut();" onmouseover="IconOver('Stop')" alt="">
+            </div>
+          </div>
+        </div>
+        <!-- 拡大縮小, 白黒, レンズ, 上下左右反転 -->
+        <div>
+          <p>
+            <span class="material-symbols-outlined" onclick="cam.Zoom('Down');" onmouseout="IconOut();" onmouseover="IconOver('Down');">
+              zoom_out
+            </span>
+            <input type="range" value="1" min="1" max="2" step="0.02" id="zoomBar" onchange="cam.Zoom();" onmouseout="IconOut();" onmouseover="IconOver('Bar');">
+            <span class="material-symbols-outlined" onclick="cam.Zoom('Up');" onmouseout="IconOut();" onmouseover="IconOver('Up');">
+              zoom_in
+            </span>
+            <span class="material-symbols-outlined" onclick="cam.Lens(this);" onmouseout="IconOut();" onmouseover="IconOver('Lens');">
+              pageview
+            </span>
+          </p>
+          <p>
+            <img alt="" src="/img/page/software/cam_browser/icon/Flip_H_None.png" class="icon" onclick="if(!this.src.includes('None')){cam.Flip(0);IconClick(this);}" id="Flip_H-button" onmouseout="IconOut();" onmouseover="IconOver('Flip_H')">
+            <img alt="" src="/img/page/software/cam_browser/icon/Flip_V_None.png" class="icon" onclick="if(!this.src.includes('None')){cam.Flip(1);IconClick(this);}" id="Flip_V-button" onmouseout="IconOut();" onmouseover="IconOver('Flip_W')">
+            <img alt="" src="/img/page/software/cam_browser/icon/Mono_None.png" class="icon" style="height: 23px;width: auto;" onclick="if(!this.src.includes('None')){cam.Gray();IconClick(this, [document.getElementById('Convert-button')]);}" id="Mono-button" onmouseout="IconOut();" onmouseover="IconOver('Mono')">
+            <img alt="" src="/img/page/software/cam_browser/icon/Convert_None.png" class="icon" style="height: 23px;width: auto;" onclick="if(!this.src.includes('None')){cam.ColorInversion();IconClick(this, [document.getElementById('Mono-button')]);}" id="Convert-button" onmouseout="IconOut();" onmouseover="IconOver('Convert')">
+          </p>
+        </div>
+        <!-- 切り替えタブ -->
+        <input id="tab-checkbox" type="checkbox" style="display: none;"><label class="tab-checkbox" for="tab-checkbox" style="cursor: pointer;" onclick="ChangeTab();">
+          <div class="space-between">
+            <div id="tab-button-0">拡張機能を表示する</div>
+            <div id="tab-button-1">▼</div>
+          </div>
+        </label>
+        <script>
+          function ChangeTab() {
+            const tab_btns = [
+              document.getElementById('tab-button-0'),
+              document.getElementById('tab-button-1')
+            ];
+            const tab1 = document.getElementById('tab1');
+            const flg = document.getElementById('tab-checkbox').checked;
+            tab_btns[0].innerText = flg ? '拡張機能を表示する' : '拡張機能を隠す';
+            tab_btns[1].innerText = flg ? '▼' : '▲';
+            tab1.checked = flg ? false : true;
+          }
+        </script>
+        <div class="tabs">
+          <input id="tab1" name="tab" type="radio"><label class="tab-item" for="tab1">ライン機能</label>
+          <input id="tab2" name="tab" type="radio"><label class="tab-item" for="tab2">カメラ調整</label>
+          <input id="tab3" name="tab" type="radio"><label class="tab-item" for="tab3">設定</label>
+
+          <!-- ライン機能 -->
+          <div class="tab-content" id="tab1-content">
+            <div class="line-wrapper">
+              <div class="space-between">
+                <span>クロスライン①</span>
+                <div>
+                  <div class="toggle_button" onmouseout="IconOut();" onmouseover="IconOver('Line_Switch');">
+                    <input id="Line-switch-0" class="toggle_input" onclick="lineObject.Switch(0);" type="checkbox">
+                    <label for="Line-switch-0" class="toggle_label"></label>
+                  </div>
+                </div>
+              </div>
+              <div class="space-between">
+                <div class="space-between">
+                  <img src="/img/page/software/cam_browser/icon/Move_None.png" class="icon" id="Line-Move-0" onclick="LineCircleMove(0, this);" onmouseout="IconOut();" onmouseover="IconOver('Move')" alt="">
+                  <img src="/img/page/software/cam_browser/icon/Color_Red_None.png" class="icon" id="Line-Color-0" onclick="lineObject.ChangeLine('Color', 0);" onmouseout="IconOut();" onmouseover="IconOver('Color')" alt="">
+                  <img src="/img/page/software/cam_browser/icon/Width_1_None.png" class="icon" id="Line-Width-0" onclick="lineObject.ChangeLine('Width', 0);" onmouseout="IconOut();" onmouseover="IconOver('Width')" alt="">
+                </div>
+                <img src="/img/page/software/cam_browser/icon/Reset_None.png" class="icon" id="Line-Reset-0" onclick="lineObject.ChangeLine('Reset');" onmouseout="IconOut();" onmouseover="IconOver('Reset')" onmousedown="this.src=this.src.replace('OFF', 'ON');" onmouseup="this.src=this.src.replace('ON', 'OFF');" alt="">
+              </div>
+            </div>
+            
+            <div class="line-wrapper">
+              <div class="space-between">
+                <span>クロスライン②</span>
+                <div>
+                  <div class="toggle_button" onmouseout="IconOut();" onmouseover="IconOver('Line_Switch', 1);">
+                    <input id="Line-switch-1" class="toggle_input" onclick="lineObject.Switch(1);" type="checkbox">
+                    <label for="Line-switch-1" class="toggle_label"></label>
+                  </div>
+                </div>
+              </div>
+              <div class="space-between">
+                <div class="space-between">
+                  <img src="/img/page/software/cam_browser/icon/Move_None.png" class="icon" id="Line-Move-1" onclick="LineCircleMove(1, this);" onmouseout="IconOut();" onmouseover="IconOver('Move', 1)" alt="">
+                  <img src="/img/page/software/cam_browser/icon/Color_Blue_None.png" class="icon" id="Line-Color-1" onclick="lineObject.ChangeLine('Color', 1);" onmouseout="IconOut();" onmouseover="IconOver('Color', 1)" alt="">
+                  <img src="/img/page/software/cam_browser/icon/Width_1_None.png" class="icon" id="Line-Width-1" onclick="lineObject.ChangeLine('Width', 1);" onmouseout="IconOut();" onmouseover="IconOver('Width', 1)" alt="">
+                </div>
+                <img src="/img/page/software/cam_browser/icon/Reset_None.png" class="icon" id="Line-Reset-1" onclick="lineObject.ChangeLine('Reset', 1);" onmouseout="IconOut();" onmouseover="IconOver('Reset', 1)" onmousedown="this.src=this.src.replace('OFF', 'ON');" onmouseup="this.src=this.src.replace('ON', 'OFF');" alt="">
+              </div>
+            </div>
+            <div class="line-wrapper">
+              <div class="space-between" id="shadow-area" style="opacity: 0.4;">
+                <span>シャドウマスク</span>
+                <div onmouseout="IconOut();" onmouseover="IconOver('Shadow_Switch');">
+                  <div class="toggle_button">
+                    <input id="shadow-switch" class="toggle_input" onclick="lineObject.Draw();" type="checkbox" style="pointer-events: none;">
+                    <label for="shadow-switch" class="toggle_label"></label>
+                  </div>
+                </div>
+                <div>
+                  <input type="range" id="shadow-range" min="0" max="1" value="1" step="0.01" onchange="lineObject.Draw();" onmouseout="IconOut();" onmouseover="IconOver('Shadow_Range', 2);">
+                </div>
+              </div>
+            </div>
+            <div class="line-wrapper">
+              <div class="space-between">
+                <span>サークル</span>
+                <div>
+                  <div class="toggle_button" onmouseout="IconOut();" onmouseover="IconOver('Circle_Switch', 2);">
+                    <input id="Circle-switch" class="toggle_input" onclick="lineObject.Switch();" type="checkbox">
+                    <label for="Circle-switch" class="toggle_label"></label>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div class="space-between">
+                  <div class="space-between">
+                    <img src="/img/page/software/cam_browser/icon/Move_None.png" class="icon" id="Circle-Move" onclick="LineCircleMove(2, this);" onmouseout="IconOut();" onmouseover="IconOver('Move', 2)" alt="">
+                    <img src="/img/page/software/cam_browser/icon/Color_Yellow_None.png" class="icon" id="Circle-Color" onclick="lineObject.ChangeCircle('Color');" onmouseout="IconOut();" onmouseover="IconOver('Color', 2)" alt="">
+                    <img src="/img/page/software/cam_browser/icon/Width_1_None.png" class="icon" id="Circle-Width" onclick="lineObject.ChangeCircle('Width');" onmouseout="IconOut();" onmouseover="IconOver('Width', 2)" alt="">
+                  </div>
+                  <img src="/img/page/software/cam_browser/icon/Reset_None.png" class="icon" id="Circle-Reset" onclick="lineObject.ChangeCircle('Reset');" onmouseout="IconOut();" onmouseover="IconOver('Reset', 2)" onmousedown="this.src=this.src.replace('OFF', 'ON');" onmouseup="this.src=this.src.replace('ON', 'OFF');" alt="">
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- 画質 -->
+          <div class="tab-content" id="tab2-content">
+            <table class="setting">
+              <tr onmouseover="IconOver('brightness');">
+                <td>明るさ</td>
+                <td><input type="range" min="0" max="100" value="50" id="brightness"></td>
+                <td><input type="text" value="50" id="brightness-value"></td>
+                <td></td>
+              </tr>
+              
+              <tr onmouseover="IconOver('exposureTime');">
+                <td>露出</td>
+                <td><input type="range" min="0" max="100" value="50" id="exposureTime"></td>
+                <td><input type="text" value="50" id="exposureTime-value"></td>
+                <td><img class="icon" src="/img/page/software/cam_browser/icon/Auto_OFF.png" id="exposureMode" onclick="cameraQuality.ModeChange(['exposureMode', 'exposureTime']);" alt=""></td>
+              </tr>
+              
+              <tr onmouseover="IconOver('exposureCompensation');">
+                <td>露出補正（ゲイン）</td>
+                <td><input type="range" min="0" max="100" value="50" id="exposureCompensation"></td>
+                <td><input type="text" value="50" id="exposureCompensation-value"></td>
+                <td></td>
+              </tr>
+              
+              <tr onmouseover="IconOver('contrast');">
+                <td>コントラスト</td>
+                <td><input type="range" min="0" max="100" value="50" id="contrast"></td>
+                <td><input type="text" value="50" id="contrast-value"></td>
+                <td></td>
+              </tr>
+              
+              <tr onmouseover="IconOver('saturation');">
+                <td>鮮やかさ</td>
+                <td><input type="range" min="0" max="100" value="50" id="saturation"></td>
+                <td><input type="text" value="50" id="saturation-value"></td>
+                <td></td>
+              </tr>
+              
+              <tr onmouseover="IconOver('sharpness');">
+                <td>鮮明度</td>
+                <td><input type="range" min="0" max="100" value="50" id="sharpness"></td>
+                <td><input type="text" value="50" id="sharpness-value"></td>
+                <td></td>
+              </tr>
+              
+              <tr onmouseover="IconOver('colorTemperature');">
+                <td>ホワイトバランス</td>
+                <td><input type="range" min="0" max="100" value="50" id="colorTemperature"></td>
+                <td><input type="text" value="50" id="colorTemperature-value"></td>
+                <td><img class="icon" src="/img/page/software/cam_browser/icon/Auto_OFF.png" id="whiteBalanceMode" onclick="cameraQuality.ModeChange(['whiteBalanceMode', 'colorTemperature']);" alt=""></td>
+              </tr>
+            </table>
+            <p style="text-align: right;">
+              <img src="/img/page/software/cam_browser/icon/Reset_OFF.png" class="icon" id="Line-Reset-0" onclick="cameraQuality.Reset();" onmouseout="IconOut();" onmouseover="IconOver('setting-Reset')" onmousedown="this.src=this.src.replace('OFF', 'ON');" onmouseup="this.src=this.src.replace('ON', 'OFF');" alt="">
+            </p>
+          </div>
+          
+          <!-- 設定 -->
+          <div class="tab-content" id="tab3-content" style="font-size: 13px;">
+            <div style="padding: 8px;">
+              <p>
+                <u>カメラ情報</u>
+              </p>
+              <p style="padding-left: 3px;">
+                カメラ：<output id="info-camera"></output>
+              </p>
+              <p style="padding-left: 3px;">
+                解像度：<output id="info-resolution"></output>px
+              </p>
+              <p style="padding-left: 3px;">
+                最大フレームレート：<output id="info-framerate"></output>fps
+              </p>
+            </div>
+            <div style="padding: 8px;" class="space-between">
+              保存名を静止画に印字する
+              <div class="toggle_button" onmouseout="IconOut();" onmouseover="IconOver('WriteName')">
+                <input id="WriteFileName-switch" class="toggle_input" type="checkbox">
+                <label for="WriteFileName-switch" class="toggle_label"></label>
+              </div>
+            </div>
+            <div style="padding: 8px;background: rgb(211, 211, 211);">
+              <div>
+                <div class="space-between">
+                  命名ルールを設定する
+                  <div class="toggle_button" onmouseout="IconOut();" onmouseover="IconOver('MeiMei')">
+                    <input id="FileName-switch" class="toggle_input" type="checkbox" onclick="cam.FileNameSwitch();">
+                    <label for="FileName-switch" class="toggle_label"></label>
+                  </div>
+                </div>
+                <p style="margin: 12px 0;">
+                  <input type="text" value="CamBrowser_{年}{月}{日}" id="filename-Meimei" style="padding: 4px 5px;width: calc(100% - 10px);border: none;background: gray;" onmouseout="IconOut();" onmouseover="IconOver('MeiMei_Input')">
+                </p>
+                <p style="text-align: right;">
+                  カウント：<input type="number" value="1" id="count" style="width: 50px;" onmouseout="IconOut();" onmouseover="IconOver('MeiMei_Count')">
+                </p>
+                <div style="line-height: 23px;margin-top: 8px;">
+                  <p><u>使用できるキー</u></p>
+                  <p>日時：{年} {月} {日} {時} {分} {秒}</p>
+                  <p>カウント：{カウント}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+<aside id="outer_link_WebCamPlus_CamBrowser">
+  <p id="outerlinkBtn" class="button">×</p>
+  <dl class="newBox">
+    <dt>NEW</dt>
+    <dd>ブラウザで計測ができるようになりました。</dd>
+  </dl>
+  <a href="/corp/members/WebCamPlus.aspx" class="startBox">
+    <dl>
+      <dt><img src="/img/page/software/WebCamPlus/WebCamPlus_icon.png" alt=""></dt>
+      <dd>WebCamPlus<br>起動する（無料）</dd>
+    </dl>
+  </a>
+  <p><a href="/corp/supportservice/pg/1WebCamPlus/">詳しくみる</a></p>
+  <dl class="oldBox">
+    <dt>旧バージョン</dt>
+    <dd>他社カメラが使えます。</dd>
+  </dl>
+  <a href="/corp/pages/cambrowser.aspx" class="startBox">
+    <dl>
+      <dt><img src="/img/page/software/cam_browser/CamBrowser_icon.png" alt=""></dt>
+      <dd>CamBrowser Ver.1.0.2.2<br>起動する（無料）</dd>
+    </dl>
+  </a>
+  <p><a href="/corp/supportservice/pg/1CamBrowser/">詳しくみる</a></p>
+</aside>
+
+      </div>
+    </div>
+  </body>
+  <script src="/js/usr/camBrowser_setting-quality.js?v1"></script>
+  <script src="/js/usr/camBrowser_setting-line.js?v1"></script>
+  <script src="/js/usr/camBrowser2.js?v3"></script>
+  <script src="/js/usr/camBrowser_main.js?v1"></script>
+<script>
+const pushmailArea  = document.getElementById('outer_link_WebCamPlus_CamBrowser');
+const pushmailBtn  = document.getElementById('outerlinkBtn');
+pushmailBtn.addEventListener('click', () => {
+  pushmailArea.style.display = "none";
+});
+</script>
+</html>
