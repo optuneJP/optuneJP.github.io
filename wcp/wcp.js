@@ -4976,7 +4976,7 @@ function cameraAcquisition() {
         devices.forEach((device) => {
             if (device.kind === 'videoinput') {
                 if (
-                    device.label === 'HOZAN USB Camera (04f2:A007)' ||
+                    device.label === 'HOZAN USB Camera (04f2:a007)' ||
                     device.label === 'USB Camera L-836 (04f2:1601)' ||
                     device.label === 'USB Camera L-837 (04f2:1601)' ||
                     device.label === 'USB Camera L-834 (04f2:1601)'
