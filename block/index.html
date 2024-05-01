@@ -19,18 +19,18 @@
     <canvas id="myCanvas" width ="480" height="320"></canvas>
 
     <script>
-const canvas = document.getElementById("myCanvas");
-const ctx = canvas.getContext("2d");
-const ballRadius = 10;
-const x = canvas.width/2;
-const y = canvas.height-30;
-const dx = 2;
-const dy = -2;
-const paddleHeight = 10;
-const paddleWidth = 75;
-const paddleX = (canvas.width-paddleWidth)/2;
-const rightPressed = false;
-const leftPressed = false;
+var canvas = document.getElementById("myCanvas");
+var ctx = canvas.getContext("2d");
+var ballRadius = 10;
+var x = canvas.width/2;
+var y = canvas.height-30;
+var dx = 2;
+var dy = -2;
+var paddleHeight = 10;
+var paddleWidth = 75;
+var paddleX = (canvas.width-paddleWidth)/2;
+var rightPressed = false;
+var leftPressed = false;
 
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
