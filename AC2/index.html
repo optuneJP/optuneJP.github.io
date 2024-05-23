@@ -31,7 +31,9 @@
         const ctx = canvas.getContext('2d');
 
         let components = [];
+        let connections = [];
         let selectedComponent = null;
+        let selectedTerminal = null;
         let offsetX, offsetY;
 
         function drawComponent(component) {
@@ -62,9 +64,31 @@
             }
         }
 
+        function drawConnections() {
+            ctx.strokeStyle = 'black';
+            connections.forEach(connection => {
+                ctx.beginPath();
+                ctx.moveTo(connection.startX, connection.startY);
+                ctx.lineTo(connection.endX, connection.endY);
+                ctx.stroke();
+            });
+        }
+
         function drawComponents() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             components.forEach(drawComponent);
+            drawConnections();
+        }
+
+        function getTerminalPosition(component, terminal) {
+            if (component.id === 'ac-source') {
+                if (terminal === 'hot') {
+                    return { x: component.x + 10, y: component.y + 40 };
+                } else if (terminal === 'cold') {
+                    return { x: component.x + 40, y: component.y + 40 };
+                }
+            }
+            return null;
         }
 
         canvas.addEventListener('dragover', (e) => {
@@ -94,27 +118,51 @@
         canvas.addEventListener('mousedown', (e) => {
             const x = e.offsetX;
             const y = e.offsetY;
+
             selectedComponent = components.find(component => x > component.x && x < component.x + component.width && y > component.y && y < component.y + component.height);
+
             if (selectedComponent) {
                 offsetX = x - selectedComponent.x;
                 offsetY = y - selectedComponent.y;
                 if (selectedComponent.id === 'switch') {
                     selectedComponent.state = !selectedComponent.state; // toggle switch state
                     drawComponents();
+                } else if (selectedComponent.id === 'ac-source') {
+                    selectedTerminal = x < selectedComponent.x + 25 ? 'hot' : 'cold';
                 }
             }
         });
 
         canvas.addEventListener('mousemove', (e) => {
-            if (selectedComponent && selectedComponent.id !== 'switch') {
+            if (selectedComponent && !selectedTerminal) {
                 selectedComponent.x = e.offsetX - offsetX;
                 selectedComponent.y = e.offsetY - offsetY;
                 drawComponents();
+            } else if (selectedComponent && selectedTerminal) {
+                drawComponents();
+                const terminalPos = getTerminalPosition(selectedComponent, selectedTerminal);
+                ctx.beginPath();
+                ctx.moveTo(terminalPos.x, terminalPos.y);
+                ctx.lineTo(e.offsetX, e.offsetY);
+                ctx.stroke();
             }
         });
 
-        canvas.addEventListener('mouseup', () => {
+        canvas.addEventListener('mouseup', (e) => {
+            if (selectedComponent && selectedTerminal) {
+                const targetComponent = components.find(component => e.offsetX > component.x && e.offsetX < component.x + component.width && e.offsetY > component.y && e.offsetY < component.y + component.height && component !== selectedComponent);
+                if (targetComponent) {
+                    const targetTerminal = e.offsetX < targetComponent.x + 25 ? 'hot' : 'cold';
+                    const startPos = getTerminalPosition(selectedComponent, selectedTerminal);
+                    const endPos = getTerminalPosition(targetComponent, targetTerminal);
+                    if (startPos && endPos) {
+                        connections.push({ startX: startPos.x, startY: startPos.y, endX: endPos.x, endY: endPos.y });
+                    }
+                }
+            }
             selectedComponent = null;
+            selectedTerminal = null;
+            drawComponents();
         });
 
         document.querySelectorAll('.component').forEach((element) => {
