@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>交流回路シミュレータ</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+        .component {
+            width: 50px;
+            height: 50px;
+            border: 1px solid black;
+            display: inline-block;
+            text-align: center;
+            line-height: 50px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <div id="ac-source" class="component" draggable="true">AC100V</div>
+        <div id="bulb" class="component" draggable="true">電球</div>
+        <div id="switch" class="component" draggable="true">スイッチ</div>
+    </div>
+    <canvas id="canvas" width="1000" height="800"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        let components = [];
+        let selectedComponent = null;
+        let offsetX, offsetY;
+
+        function drawComponent(component) {
+            ctx.fillStyle = 'white';
+            ctx.fillRect(component.x, component.y, component.width, component.height);
+            ctx.strokeRect(component.x, component.y, component.width, component.height);
+            ctx.fillStyle = 'black';
+            ctx.fillText(component.label, component.x + 10, component.y + 20);
+
+            if (component.id === 'ac-source') {
+                // Draw hot terminal (black)
+                ctx.beginPath();
+                ctx.arc(component.x + 10, component.y + 40, 5, 0, 2 * Math.PI);
+                ctx.fillStyle = 'black';
+                ctx.fill();
+                ctx.stroke();
+
+                // Draw cold terminal (white)
+                ctx.beginPath();
+                ctx.arc(component.x + 40, component.y + 40, 5, 0, 2 * Math.PI);
+                ctx.fillStyle = 'white';
+                ctx.fill();
+                ctx.stroke();
+            } else if (component.id === 'switch') {
+                // Draw switch state
+                ctx.fillStyle = component.state ? 'green' : 'red';
+                ctx.fillRect(component.x + 15, component.y + 15, 20, 20);
+            }
+        }
+
+        function drawComponents() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            components.forEach(drawComponent);
+        }
+
+        canvas.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+
+        canvas.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const data = e.dataTransfer.getData('text');
+            const x = e.offsetX;
+            const y = e.offsetY;
+
+            let component = {
+                id: data,
+                x: x,
+                y: y,
+                width: 50,
+                height: 50,
+                label: data,
+                state: false // initial state for the switch
+            };
+
+            components.push(component);
+            drawComponents();
+        });
+
+        canvas.addEventListener('mousedown', (e) => {
+            const x = e.offsetX;
+            const y = e.offsetY;
+            selectedComponent = components.find(component => x > component.x && x < component.x + component.width && y > component.y && y < component.y + component.height);
+            if (selectedComponent) {
+                offsetX = x - selectedComponent.x;
+                offsetY = y - selectedComponent.y;
+                if (selectedComponent.id === 'switch') {
+                    selectedComponent.state = !selectedComponent.state; // toggle switch state
+                    drawComponents();
+                }
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (selectedComponent && selectedComponent.id !== 'switch') {
+                selectedComponent.x = e.offsetX - offsetX;
+                selectedComponent.y = e.offsetY - offsetY;
+                drawComponents();
+            }
+        });
+
+        canvas.addEventListener('mouseup', () => {
+            selectedComponent = null;
+        });
+
+        document.querySelectorAll('.component').forEach((element) => {
+            element.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text', e.target.id);
+            });
+        });
+    </script>
+</body>
+</html>
