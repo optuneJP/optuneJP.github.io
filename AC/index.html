@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>交流回路シミュレータ</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="board">
+        <div id="power" class="component power" draggable="true" data-component="power">100V電源</div>
+        <div id="switch" class="component switch" draggable="true" data-component="switch">スイッチ</div>
+        <div id="bulb" class="component bulb" draggable="true" data-component="bulb">電球</div>
+        <svg id="wires" class="wires"></svg>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
