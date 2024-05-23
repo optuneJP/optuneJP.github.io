@@ -32,4 +32,12 @@ canvas.addEventListener('mouseup', (e) => {
         // Draw the final line
         ctx.beginPath();
         ctx.moveTo(startX, startY);
-        ctx.lineTo(e.offsetX, e
+        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.stroke();
+        ctx.closePath();
+    }
+});
+
+canvas.addEventListener('mouseout', () => {
+    isDrawing = false;
+});
