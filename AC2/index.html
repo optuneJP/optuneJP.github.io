@@ -61,6 +61,25 @@
                 // Draw switch state
                 ctx.fillStyle = component.state ? 'green' : 'red';
                 ctx.fillRect(component.x + 15, component.y + 15, 20, 20);
+            } else if (component.id === 'bulb') {
+                // Draw bulb terminals
+                ctx.beginPath();
+                ctx.arc(component.x + 10, component.y + 40, 5, 0, 2 * Math.PI);
+                ctx.fillStyle = 'gray';
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.arc(component.x + 40, component.y + 40, 5, 0, 2 * Math.PI);
+                ctx.fillStyle = 'gray';
+                ctx.fill();
+                ctx.stroke();
+
+                // Draw bulb state
+                if (component.state) {
+                    ctx.fillStyle = 'yellow';
+                    ctx.fillRect(component.x + 15, component.y + 10, 20, 20);
+                }
             }
         }
 
@@ -87,8 +106,33 @@
                 } else if (terminal === 'cold') {
                     return { x: component.x + 40, y: component.y + 40 };
                 }
+            } else if (component.id === 'bulb') {
+                if (terminal === 'left') {
+                    return { x: component.x + 10, y: component.y + 40 };
+                } else if (terminal === 'right') {
+                    return { x: component.x + 40, y: component.y + 40 };
+                }
             }
             return null;
+        }
+
+        function checkConnections() {
+            components.forEach(component => {
+                if (component.id === 'bulb') {
+                    const leftConnection = connections.find(connection =>
+                        (connection.startX === component.x + 10 && connection.startY === component.y + 40) ||
+                        (connection.endX === component.x + 10 && connection.endY === component.y + 40)
+                    );
+
+                    const rightConnection = connections.find(connection =>
+                        (connection.startX === component.x + 40 && connection.startY === component.y + 40) ||
+                        (connection.endX === component.x + 40 && connection.endY === component.y + 40)
+                    );
+
+                    const isPowered = leftConnection && rightConnection;
+                    component.state = isPowered;
+                }
+            });
         }
 
         canvas.addEventListener('dragover', (e) => {
@@ -108,7 +152,7 @@
                 width: 50,
                 height: 50,
                 label: data,
-                state: false // initial state for the switch
+                state: false // initial state for the switch and bulb
             };
 
             components.push(component);
@@ -127,8 +171,8 @@
                 if (selectedComponent.id === 'switch') {
                     selectedComponent.state = !selectedComponent.state; // toggle switch state
                     drawComponents();
-                } else if (selectedComponent.id === 'ac-source') {
-                    selectedTerminal = x < selectedComponent.x + 25 ? 'hot' : 'cold';
+                } else {
+                    selectedTerminal = x < selectedComponent.x + 25 ? 'left' : 'right';
                 }
             }
         });
@@ -152,11 +196,12 @@
             if (selectedComponent && selectedTerminal) {
                 const targetComponent = components.find(component => e.offsetX > component.x && e.offsetX < component.x + component.width && e.offsetY > component.y && e.offsetY < component.y + component.height && component !== selectedComponent);
                 if (targetComponent) {
-                    const targetTerminal = e.offsetX < targetComponent.x + 25 ? 'hot' : 'cold';
+                    const targetTerminal = e.offsetX < targetComponent.x + 25 ? 'left' : 'right';
                     const startPos = getTerminalPosition(selectedComponent, selectedTerminal);
                     const endPos = getTerminalPosition(targetComponent, targetTerminal);
                     if (startPos && endPos) {
                         connections.push({ startX: startPos.x, startY: startPos.y, endX: endPos.x, endY: endPos.y });
+                        checkConnections();
                     }
                 }
             }
