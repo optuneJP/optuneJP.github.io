@@ -62,15 +62,23 @@
                 ctx.fillStyle = component.state ? 'green' : 'red';
                 ctx.fillRect(component.x + 15, component.y + 15, 20, 20);
             } else if (component.id === 'bulb') {
+                // Draw bulb shape
+                ctx.beginPath();
+                ctx.arc(component.x + 25, component.y + 25, 20, 0, Math.PI, true);
+                ctx.lineTo(component.x + 5, component.y + 45);
+                ctx.lineTo(component.x + 45, component.y + 45);
+                ctx.closePath();
+                ctx.stroke();
+
                 // Draw bulb terminals
                 ctx.beginPath();
-                ctx.arc(component.x + 10, component.y + 40, 5, 0, 2 * Math.PI);
+                ctx.arc(component.x + 10, component.y + 45, 5, 0, 2 * Math.PI);
                 ctx.fillStyle = 'gray';
                 ctx.fill();
                 ctx.stroke();
 
                 ctx.beginPath();
-                ctx.arc(component.x + 40, component.y + 40, 5, 0, 2 * Math.PI);
+                ctx.arc(component.x + 40, component.y + 45, 5, 0, 2 * Math.PI);
                 ctx.fillStyle = 'gray';
                 ctx.fill();
                 ctx.stroke();
@@ -78,7 +86,7 @@
                 // Draw bulb state
                 if (component.state) {
                     ctx.fillStyle = 'yellow';
-                    ctx.fillRect(component.x + 15, component.y + 10, 20, 20);
+                    ctx.fill();
                 }
             }
         }
@@ -108,9 +116,9 @@
                 }
             } else if (component.id === 'bulb') {
                 if (terminal === 'left') {
-                    return { x: component.x + 10, y: component.y + 40 };
+                    return { x: component.x + 10, y: component.y + 45 };
                 } else if (terminal === 'right') {
-                    return { x: component.x + 40, y: component.y + 40 };
+                    return { x: component.x + 40, y: component.y + 45 };
                 }
             }
             return null;
@@ -120,13 +128,13 @@
             components.forEach(component => {
                 if (component.id === 'bulb') {
                     const leftConnection = connections.find(connection =>
-                        (connection.startX === component.x + 10 && connection.startY === component.y + 40) ||
-                        (connection.endX === component.x + 10 && connection.endY === component.y + 40)
+                        (connection.startX === component.x + 10 && connection.startY === component.y + 45) ||
+                        (connection.endX === component.x + 10 && connection.endY === component.y + 45)
                     );
 
                     const rightConnection = connections.find(connection =>
-                        (connection.startX === component.x + 40 && connection.startY === component.y + 40) ||
-                        (connection.endX === component.x + 40 && connection.endY === component.y + 40)
+                        (connection.startX === component.x + 40 && connection.startY === component.y + 45) ||
+                        (connection.endX === component.x + 40 && connection.endY === component.y + 45)
                     );
 
                     const isPowered = leftConnection && rightConnection;
