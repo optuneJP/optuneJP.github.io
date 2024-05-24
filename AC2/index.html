@@ -62,13 +62,16 @@
                 ctx.fillStyle = component.state ? 'green' : 'red';
                 ctx.fillRect(component.x + 15, component.y + 15, 20, 20);
             } else if (component.id === 'bulb') {
-                // Draw bulb shape
+                // Draw bulb shape (circle with R)
                 ctx.beginPath();
-                ctx.arc(component.x + 25, component.y + 25, 20, 0, Math.PI, true);
-                ctx.lineTo(component.x + 5, component.y + 45);
-                ctx.lineTo(component.x + 45, component.y + 45);
-                ctx.closePath();
+                ctx.arc(component.x + 25, component.y + 25, 20, 0, 2 * Math.PI);
                 ctx.stroke();
+
+                ctx.font = '20px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = 'black';
+                ctx.fillText('R', component.x + 25, component.y + 25);
 
                 // Draw bulb terminals
                 ctx.beginPath();
@@ -85,6 +88,8 @@
 
                 // Draw bulb state
                 if (component.state) {
+                    ctx.beginPath();
+                    ctx.arc(component.x + 25, component.y + 25, 18, 0, 2 * Math.PI);
                     ctx.fillStyle = 'yellow';
                     ctx.fill();
                 }
